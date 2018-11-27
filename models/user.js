@@ -1,7 +1,7 @@
 const mongoose = require("mongoose")
 const Joi = require("joi")
 
-// User schema
+// Mongoose user schema
 const userSchema = new mongoose.Schema({
     username: {
         type: String,
@@ -13,6 +13,9 @@ const userSchema = new mongoose.Schema({
         required: true
     }
 })
+
+// Mongoose model
+const User = mongoose.model('user', userSchema)
 
 // Request body validator
 function validateUser(user) {
@@ -32,9 +35,6 @@ function validatePwChange(pwChange) {
     }
     return Joi.validate(pwChange, schema)
 }
-
-// Mongoose model
-const User = mongoose.model('user', userSchema)
 
 module.exports.User = User
 module.exports.validate = validateUser

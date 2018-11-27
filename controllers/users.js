@@ -1,4 +1,5 @@
 const { User, validate, validatePwChange } = require("../models/user")
+const { neo4j } = require("../startup/db")
 
 module.exports = {
 
@@ -15,6 +16,13 @@ module.exports = {
             password: req.body.password
         })
         await user.save()
+        // Save to neo4j
+        let session = neo4j.session()
+        await session.run(
+            'CREATE (a:Person {username: $username, password: $password}) RETURN a',
+            { username: req.body.username, password: req.body.password }
+        )
+        session.close()
         // Response
         res.send(user)
     },

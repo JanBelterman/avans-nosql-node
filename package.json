@@ -23,7 +23,9 @@
     "express": "^4.16.4",
     "joi": "^14.3.0",
     "joi-objectid": "^2.0.0",
-    "mongoose": "^5.3.13"
+    "mongoose": "^5.3.13",
+    "neo4j": "^2.0.0-RC2",
+    "neo4j-driver": "^1.5.0"
   },
   "devDependencies": {
     "mocha": "^3.2.0",
