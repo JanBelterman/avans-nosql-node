@@ -1,7 +1,10 @@
 const mongoose = require('mongoose')
 const config = require("config")
 
-before(done => {
+const neo4j = require("neo4j-driver").v1
+let driver = neo4j.driver(config.get("neo4jSocket"), neo4j.auth.basic(config.get("neo4jUsername"), config.get("neo4jPassword")))
+
+before((done) => {
     const dbUrl = config.get("dbUrl")
     mongoose.connect(dbUrl, { useNewUrlParser: true })
         .then(() => {
@@ -13,6 +16,28 @@ before(done => {
 beforeEach((done) => {
     const { users } = mongoose.connection.collections
     users.drop()
-        .then(() => done())
-        .catch(() => done())
+        .then(() => {
+            let session = driver.session()
+            session.run(
+                'MATCH (p:Person)' +
+                'DELETE p'
+            ).then(() => {
+                done()
+            }).catch(() => {
+                done()
+            })
+        })
+        .catch(() => {
+            let session = driver.session()
+            session.run(
+                'MATCH (p:Person)' +
+                'DELETE p'
+            ).then(() => {
+                done()
+            }).catch(() => {
+                done()
+            })
+        })
 })
+
+module.exports.instance = driver

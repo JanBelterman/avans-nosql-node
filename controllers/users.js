@@ -51,7 +51,7 @@ module.exports = {
     },
 
     async deleteUser(req, res, next) {
-        // Request body correct>
+        // Request body correct?
         const { error } = validate(req.body)
         if (error) return res.status(400).send(error.details[0].message)
         // Username exists?
