@@ -19,7 +19,7 @@ module.exports = {
         // Save to neo4j
         let session = neo4j.session()
         await session.run(
-            'CREATE (a:Person {username: $username, password: $password}) RETURN a',
+            'CREATE (p:Person {username: $username, password: $password}) RETURN p',
             { username: req.body.username, password: req.body.password }
         )
         session.close()
@@ -39,6 +39,13 @@ module.exports = {
         // Update user to mongodb
         user.password = req.body.newPassword
         user.save()
+        // Update user to neo4j
+        let session = neo4j.session()
+        await session.run(
+            'MATCH (p {username: $username})' +
+            'SET p.password = $password',
+            { username: req.body.username, password: req.body.newPassword }
+        )
         // Response
         res.send(user)
     },
@@ -54,6 +61,13 @@ module.exports = {
         if (user.password !== req.body.password) return res.status(401).send("Old password is incorrect")
         // Delete user from mongodb
         user.remove()
+        // Delete user form neo4j
+        let session = neo4j.session()
+        await session.run(
+            'MATCH (p {username: $username})' +
+            'DELETE p',
+            { username: req.body.username }
+        )
         // Response
         res.send(user)
     }
