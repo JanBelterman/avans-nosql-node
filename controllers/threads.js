@@ -1,5 +1,6 @@
 const { Thread, validate, validateUpdate } = require("../models/thread")
 const { User } = require("../models/user")
+const Joi = require("joi")
 
 module.exports = {
 
@@ -22,8 +23,7 @@ module.exports = {
     },
 
     async update(req, res, next) {
-        // Request body & id correct?
-        req.body.threadId = req.params.id
+        // Request body?
         const { error } = validateUpdate(req.body)
         if (error) return res.status(400).send(error.details[0].message)
         // Update thread
@@ -31,6 +31,12 @@ module.exports = {
         thread.content = req.body.content
         thread.save()
         // Response
+        res.send(thread)
+    },
+
+    async delete(req, res, next) {
+        // TODO: delete all comments if not using embedded comments
+        const thread = await Thread.findByIdAndDelete(req.params.id)
         res.send(thread)
     }
 

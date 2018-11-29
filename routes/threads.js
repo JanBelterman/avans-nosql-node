@@ -1,9 +1,11 @@
 const threadsController = require("../controllers/threads")
 const express = require("express")
+const validateId = require("../middleware/validateId")
 
 const router = express.Router()
 
 router.post("/", threadsController.create)
-router.put("/:id", threadsController.update)
+router.put("/:id", validateId, threadsController.update)
+router.delete("/:id", validateId, threadsController.delete)
 
 module.exports = router
