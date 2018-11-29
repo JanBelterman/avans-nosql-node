@@ -5,5 +5,5 @@ module.exports.mongoose = function() {
     const dbUrl = config.get('dbUrl')
     mongoose.connect(dbUrl, { useNewUrlParser: true })
         .then(() => console.log(`Connected to ${dbUrl}..`))
-        .catch(() => consolelog(`Failed to connect to ${dbUrl}..`))
+        .catch(() => console.log(`Failed to connect to ${dbUrl}..`))
 }
