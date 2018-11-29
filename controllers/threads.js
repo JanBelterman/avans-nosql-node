@@ -39,6 +39,15 @@ module.exports = {
         const thread = await Thread.findByIdAndDelete(req.params.id)
         if (!thread) return res.status(404).send("Thread doesn't exist")
         res.send(thread)
+    },
+
+    async getAll(req, res, next) {
+        // TODO: get upvotes and downvotes
+        // Get threads
+        const threads = await Thread.find({}, { _id: 1, username: 1, title: 1, content: 1, })
+        console.log(threads)
+        // Response
+        res.send(threads)
     }
 
 }

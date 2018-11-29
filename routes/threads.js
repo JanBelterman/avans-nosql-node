@@ -7,5 +7,6 @@ const router = express.Router()
 router.post("/", threadsController.create)
 router.put("/:id", validateId, threadsController.update)
 router.delete("/:id", validateId, threadsController.delete)
+router.get("/", threadsController.getAll)
 
 module.exports = router
