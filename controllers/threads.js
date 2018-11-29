@@ -37,6 +37,7 @@ module.exports = {
     async delete(req, res, next) {
         // TODO: delete all comments if not using embedded comments
         const thread = await Thread.findByIdAndDelete(req.params.id)
+        if (!thread) return res.status(404).send("Thread doesn't exist")
         res.send(thread)
     }
 
