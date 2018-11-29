@@ -5,7 +5,7 @@ module.exports = function() {
     if (!config.get("dbUrl")) {
         throw new Error('ERROR: dbUrl is not defined')
     }
-    if (!config.get("neo4jSocket")) {
+    if (!config.get("neo4jBolt")) {
         throw new Error('ERROR: neo4jSocket is not defined')
     }
     if (!config.get("neo4jUsername")) {
