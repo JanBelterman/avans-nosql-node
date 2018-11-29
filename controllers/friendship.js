@@ -22,6 +22,26 @@ module.exports = {
         )
         // Response
         res.send("Friendship created")
+    },
+
+    async defriendUsers(req, res, next) {
+        // Request body correct?
+        const { error } = validateBefriend(req.body)
+        if (error) return res.status(400).send(error.details[0].message)
+        // Both usernames exist?
+        let user = await User.findOne({ username: req.body.usernameOne })
+        if (!user) return res.status(404).send("User one not registered")
+        user = await User.findOne({ username: req.body.usernameTwo })
+        if (!user) return res.status(404).send("User two not registered")
+        // Delete relation in neo4j
+        let session = instance.session()
+        await session.run(
+            'MATCH (p1:Person{username: $usernameOne})-[r:friendsWith]-(p2:Person{username: $usernameTwo})' +
+            'DELETE r',
+            { usernameOne: req.body.usernameOne, usernameTwo: req.body.usernameTwo }
+        )
+        // Response
+        res.send("Friendship deleted")
     }
 
 }
