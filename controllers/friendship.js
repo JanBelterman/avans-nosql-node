@@ -17,7 +17,7 @@ module.exports = {
         let session = instance.session()
         await session.run(
             'MATCH (p1 {username: $usernameOne}), (p2 {username: $usernameTwo})' +
-            'CREATE (p1)-[:friendsWith]->(p2)',
+            'MERGE (p1)-[:friendsWith]->(p2)',
             { usernameOne: req.body.usernameOne, usernameTwo: req.body.usernameTwo }
         )
         // Response
