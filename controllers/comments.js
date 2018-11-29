@@ -34,27 +34,24 @@ module.exports = {
         // Save on parent comment or thread
         if(req.params.commentId) {
             Comment.findOne({ _id: req.params.commentId}).then((parentComment) => {
-                if(parentComment) {
-                    //Save in parent comment and respond
-                    parentComment.comments.push(comment._id)
-                    
-                    comment.save()
-                        .then(() => {
-                            parentComment.save()
-                                .then(() => {
-                                    return res.send(comment)
-                                })
-                        })
-                    
-                } else {
-                    //Save in parent thread and respond
-                    
-                } 
+                //Save in parent comment and respond
+                if(!parentComment) return res.status(404).send("Parent comment not found")
+                console.log("Parent comment found... Saving in comment")
+                parentComment.comments.push(comment._id)
+                
+                comment.save()
+                    .then(() => {
+                        parentComment.save()
+                            .then(() => {
+                                return res.send(comment)
+                            })
+                    })
             })
         } else {
-            console.log("No parent commentId provided")
+            console.log("No parent commentId provided... Saving in thread")
             Thread.findOne({ _id: req.threadId})
                 .then((result) => {
+                    if(!result) return res.status(404).send("Thread not found")
                     const thread = result
 
                     thread.comments.push(comment._id)
@@ -68,8 +65,6 @@ module.exports = {
                         })
                 })
         }
-        
-               
     },
 
     delete(req, res) {

@@ -34,7 +34,10 @@ commentSchema.pre('remove', function (next) {
     const Comment = mongoose.model('comment');
 
     Comment.deleteMany({ _id: { $in: this.comments } })
-        .then(() => next())
+        .then(() => {
+            console.log("delete many done")
+            next()
+        })
 })
 
 // Mongoose model
