@@ -1,6 +1,5 @@
 const { Thread, validate, validateUpdate } = require("../models/thread")
 const { User } = require("../models/user")
-const Joi = require("joi")
 
 module.exports = {
 
@@ -49,7 +48,7 @@ module.exports = {
 
     async getOne(req, res, next) {
         // Get thread
-        const thread = await Thread.findOne({ _id: req.params.id }, { upvotes: 0, downvotes: 0 })
+        const thread = await Thread.findOne({ _id: req.params.id }, { upvotes: 0, downvotes: 0 }).populate('comments', { path: 'comments' })
         // Thread exists?
         if (!thread) res.status(404).send("Thread doesn't exist")
         // Response

@@ -1,23 +1,8 @@
 const mongoose = require("mongoose")
 const Joi = require("joi")
+require('./comments')
 
-// Mongoose comment schema
-const commentSchema = new mongoose.Schema({
-    username: {
-        type: String,
-        required: true
-    },
-    content: {
-        type: String,
-        required: true
-    },
-    upvotes: [{
-        type: String
-    }],
-    downvotes: [{
-        type: String
-    }]
-})
+const Schema = mongoose.Schema
 
 // Mongoose thread schema
 const threadSchema = new mongoose.Schema({
@@ -34,14 +19,11 @@ const threadSchema = new mongoose.Schema({
         required: true
     },
     comments: [{
-        type: commentSchema
+        type: Schema.Types.ObjectId,
+        ref: 'comment'
     }],
-    upvotes: [{
-        type: String
-    }],
-    downvotes: [{
-        type: String
-    }]
+    upvotes: [String],
+    downvotes: [String]
 })
 
 threadSchema.virtual('upvotesCount').get(function () {
