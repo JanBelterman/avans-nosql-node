@@ -22,3 +22,11 @@ beforeEach((done) => {
         .then(() => done())
         .catch(() => done())
 })
+
+after((done) => {
+    let session = instance.session()
+    session.run('MATCH (n) DETACH DELETE n')
+        .then(() => {
+            done()
+        })
+})
