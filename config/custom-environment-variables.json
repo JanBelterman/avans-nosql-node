@@ -1,3 +1,6 @@
 {
-    "dbUrl": "dbUrl"
+    "dbUrl": "dbUrl",
+    "neo4jBolt": "neo4jBolt",
+    "neo4jUsername": "neo4jUsername",
+    "neo4jPassword": "neo4jPassword"
 }

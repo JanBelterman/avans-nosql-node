@@ -3,6 +3,7 @@ const express = require("express")
 const users = require("../routes/users")
 const friendships = require("../routes/friendships")
 const threads = require("../routes/threads")
+const comments = require("../routes/comments")
 
 module.exports = function(app) {
     app.use(express.json())

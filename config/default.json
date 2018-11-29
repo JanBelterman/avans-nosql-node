@@ -1,6 +1,6 @@
 {
     "dbUrl": "mongodb://localhost/studdit",
-    "neo4jSocket": "bolt://localhost:7687",
+    "neo4jBolt": "bolt://localhost:7687",
     "neo4jUsername": "neo4j",
     "neo4jPassword": "12345"
 }
