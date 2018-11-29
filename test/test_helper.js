@@ -2,8 +2,8 @@ const mongoose = require('mongoose')
 const config = require("config")
 const instance = require("../startup/neo4jdb")
 
+// Connect to mongodb
 before((done) => {
-    // Connect mongoose to mongodb
     const dbUrl = config.get("dbUrl")
     mongoose.connect(dbUrl, { useNewUrlParser: true })
         .then(() => {
@@ -15,18 +15,16 @@ before((done) => {
         })
 })
 
-beforeEach((done) => {
-    // Drop all database content
+// Clear all databases before each test
+// So each test can assume to have an emtpy dataset
+beforeEach(async (done) => {
     const { users } = mongoose.connection.collections
-    users.drop()
-        .then(() => done())
-        .catch(() => done())
-})
-
-after((done) => {
-    let session = instance.session()
-    session.run('MATCH (n) DETACH DELETE n')
-        .then(() => {
-            done()
-        })
+    try {
+        await users.drop()
+    } catch (err) { }
+    try {
+        let session = instance.session()
+        await session.run('MATCH (n) DETACH DELETE n')
+    } catch(err) { }
+    done()
 })

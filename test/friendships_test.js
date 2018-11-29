@@ -2,16 +2,18 @@ const assert = require("assert")
 const request = require("supertest")
 const app = require("../app")
 const instance = require("../startup/neo4jdb")
+const { User } = require("../models/user")
 
 describe('/api/friendships', () => {
 
-    before((done) => {
+    beforeEach(async (done) => {
         let session = instance.session()
-        session.run(
-            'CREATE (:Person {username: "testUserFriendShips1"}), (:Person {username:"testUserFriendShips2"})'
-        ).then(() => {
-            done()
-        })
+        await session.run('CREATE (:Person{username: "testUser1"}), (:Person{username:"testUser2"})')
+        const userOne = new User({username: "testUser1", password: "12345"})
+        const userTwo = new User({username: "testUser2", password: "12345"})
+        await userOne.save()
+        await userTwo.save()
+        done()
     })
 
     describe('POST', () => {
@@ -20,17 +22,12 @@ describe('/api/friendships', () => {
             request(app)
                 .post('/api/friendships')
                 .send({
-                    usernameOne: "testUserFriendShips1",
-                    passwordTwo: "testUserFriendShips2"
+                    usernameOne: "testUser1",
+                    usernameTwo: "testUser2"
                 })
-                .end(function(err, response) {
-                    let session = instance.session()
-                    session.run(
-                        'MATCH (p1:Person{username: "testUserFriendShips1"})-[:friendsWith]-(p2:Person) RETURN p2'
-                    ).then((result) => {
-                        assert(response.status, 200)
-                        done()
-                    })
+                .end(function (err, response) {
+                    assert(response.status === 200)
+                    done()
                 })
         })
 
@@ -42,8 +39,8 @@ describe('/api/friendships', () => {
             request(app)
                 .delete('/api/friendships')
                 .send({
-                    usernameOne: "testUserFriendShips1",
-                    passwordTwo: "testUserFriendShips2"
+                    usernameOne: "testUser1",
+                    usernameTwo: "testUser2"
                 })
                 .end((err, response) => {
                     assert(response.status, 200)

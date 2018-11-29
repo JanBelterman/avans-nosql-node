@@ -20,10 +20,6 @@ module.exports = {
             'MERGE (p1)-[:friendsWith]->(p2)',
             { usernameOne: req.body.usernameOne, usernameTwo: req.body.usernameTwo }
         )
-        const result = await session.run(
-            'MATCH (p1:Person{username: "testUserFriendShips1"})-[:friendsWith]-(p2:Person) RETURN p2'
-        )
-        console.log("HIERRRRR: \n" + result)
         // Response
         res.send("Friendship created")
     },
