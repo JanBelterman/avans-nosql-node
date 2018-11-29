@@ -9,4 +9,5 @@ module.exports = function(app) {
     app.use('/api/users', users)
     app.use('/api/friendships', friendships)
     app.use('/api/threads', threads)
+    app.use('/api/thread/:id/comments', comments)
 }

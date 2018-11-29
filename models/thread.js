@@ -1,6 +1,6 @@
 const mongoose = require("mongoose")
 const Joi = require("joi")
-require('./comments')
+require('./comment')
 
 const Schema = mongoose.Schema
 

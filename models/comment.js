@@ -33,4 +33,14 @@ commentSchema.virtual('downvotesCount').get(function () {
 // Mongoose model
 const Comment = mongoose.model('comment', commentSchema)
 
-module.exports = Comment
+// Request body validator
+function validateComment(comment) {
+    const schema = {
+        username: Joi.string().required(),
+        content: Joi.string().required()
+    }
+    return Joi.validate(comment, schema)
+}
+
+module.exports.Comment = Comment
+module.exports.validate = validateComment
