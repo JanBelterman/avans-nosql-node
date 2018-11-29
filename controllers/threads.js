@@ -45,6 +45,15 @@ module.exports = {
         const threads = await Thread.find({}, { _id: 1, username: 1, title: 1, content: 1, upvotesCount: 1, downvotesCount: 1 })
         // Response
         res.send(threads)
+    },
+
+    async getOne(req, res, next) {
+        // Get thread
+        const thread = await Thread.findOne({ _id: req.params.id }, { upvotes: 0, downvotes: 0 })
+        // Thread exists?
+        if (!thread) res.status(404).send("Thread doesn't exist")
+        // Response
+        res.send(thread)
     }
 
 }
