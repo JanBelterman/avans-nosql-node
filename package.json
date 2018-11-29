@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "SET NODE_ENV=production&& node index.js",
+    "start": "node index.js",
     "test": "SET NODE_ENV=test&& nodemon --exec mocha -R min"
   },
   "engines": {
