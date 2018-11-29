@@ -67,6 +67,9 @@ module.exports = {
     },
 
     delete(req, res) {
-        //
+        Comment.findByIdAndDelete(req.params.commentId)
+            .then((result) => {
+                res.send(result)
+            })
     }
 }

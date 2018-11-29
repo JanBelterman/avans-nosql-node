@@ -30,9 +30,11 @@ commentSchema.virtual('downvotesCount').get(function () {
     return this.downvotes.length
 })
 
-commentSchema.pre('remove', function(next) {
+commentSchema.pre('remove', function (next) {
     const Comment = mongoose.model('comment');
-    
+
+    Comment.deleteMany({ _id: { $in: this.comments } })
+        .then(() => next())
 })
 
 // Mongoose model
