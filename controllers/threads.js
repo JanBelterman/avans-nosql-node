@@ -1,5 +1,6 @@
 const { Thread, validate, validateUpdate } = require("../models/thread")
 const { User } = require("../models/user")
+const { Comment } = require("../models/comment")
 
 module.exports = {
 
@@ -47,12 +48,44 @@ module.exports = {
     },
 
     async getOne(req, res, next) {
-        // Get thread // TODO: get all comments recursively?
-        const thread = await Thread.findOne({ _id: req.params.id }, { upvotes: 0, downvotes: 0 }).populate('comments', { path: 'comments' })
+        // Get thread
+        const thread = await Thread.findOne({ _id: req.params.id }, { upvotes: 0, downvotes: 0 })//.populate([
+        //     {
+        //         path: "comments",
+        //         model: "comment",
+        //         populate: {
+        //             path: "comments",
+        //             model: "comment"
+        //         }
+        //     }
+        // ])
+        // Populate all comments & comments of comments
+        let i = 0;
+        for (let item of thread.comments) {
+            thread.comments[i] = await loadComments(item)
+            i++
+        }
+        console.log(JSON.stringify(thread.comments))
         // Thread exists?
         if (!thread) res.status(404).send("Thread doesn't exist")
         // Response
         res.send(thread)
     }
 
+
+
+}
+
+loadComments = function (parent) {
+    return new Promise(async(resolve) => {
+        parent = await Comment.findById(parent)
+        if (parent.comments && parent.comments.length >= 1) {
+            let i = 0
+            for (let item of parent.comments) {
+                parent.comments[i] = await loadComments(item)
+                i++
+            }
+        }
+        resolve(parent)
+    })
 }
