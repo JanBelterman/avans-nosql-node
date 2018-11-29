@@ -60,6 +60,7 @@ module.exports = {
         //     }
         // ])
         // Populate all comments & comments of comments
+        if (!thread) return res.status(404).send("No thread with this id")
         let i = 0;
         for (let item of thread.comments) {
             thread.comments[i] = await loadComments(item)
@@ -76,6 +77,7 @@ module.exports = {
 
 }
 
+// Load comments recursively
 loadComments = function (parent) {
     return new Promise(async(resolve) => {
         parent = await Comment.findById(parent)
