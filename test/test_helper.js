@@ -14,10 +14,10 @@ before((done) => {
 })
 
 beforeEach((done) => {
-    const { users } = mongoose.connection.collections
-    users.drop()
-        .then(() => {
-            let session = driver.session()
+    const { users, threads } = mongoose.connection.collections
+
+    Promise.all([users.drop(), threads.drop()]).then(() => {
+        let session = driver.session()
             session.run(
                 'MATCH (p:Person)' +
                 'DELETE p'
@@ -26,9 +26,9 @@ beforeEach((done) => {
             }).catch(() => {
                 done()
             })
-        })
-        .catch(() => {
-            let session = driver.session()
+    })
+    .catch(() => {
+        let session = driver.session()
             session.run(
                 'MATCH (p:Person)' +
                 'DELETE p'
@@ -37,7 +37,31 @@ beforeEach((done) => {
             }).catch(() => {
                 done()
             })
-        })
+    })
+
+    // users.drop()
+    //     .then(() => {
+    //         let session = driver.session()
+    //         session.run(
+    //             'MATCH (p:Person)' +
+    //             'DELETE p'
+    //         ).then(() => {
+    //             done()
+    //         }).catch(() => {
+    //             done()
+    //         })
+    //     })
+    //     .catch(() => {
+    //         let session = driver.session()
+    //         session.run(
+    //             'MATCH (p:Person)' +
+    //             'DELETE p'
+    //         ).then(() => {
+    //             done()
+    //         }).catch(() => {
+    //             done()
+    //         })
+    // })
 })
 
 module.exports.instance = driver
