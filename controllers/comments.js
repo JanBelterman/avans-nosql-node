@@ -71,5 +71,8 @@ module.exports = {
             .then((result) => {
                 res.send(result)
             })
+            .catch(() => {
+                res.status(404).send("Comment not found.")
+            })
     }
 }
