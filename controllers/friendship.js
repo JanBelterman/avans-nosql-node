@@ -1,6 +1,6 @@
 const { validateBefriend } = require("../models/friendship")
 const { User } = require("../models/user")
-const { neo4j } = require("../startup/db")
+const instance = require("../startup/neo4jdb")
 
 module.exports = {
 
@@ -14,7 +14,7 @@ module.exports = {
         user = await User.findOne({ username: req.body.usernameTwo })
         if (!user) return res.status(404).send("User two not registered")
         // Create relation in neo4j
-        let session = neo4j.session()
+        let session = instance.session()
         await session.run(
             'MATCH (p1 {username: $usernameOne}), (p2 {username: $usernameTwo})' +
             'CREATE (p1)-[:friendsWith]->(p2)',

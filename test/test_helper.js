@@ -1,43 +1,24 @@
 const mongoose = require('mongoose')
 const config = require("config")
-
-const neo4j = require("neo4j-driver").v1
-let driver = neo4j.driver(config.get("neo4jSocket"), neo4j.auth.basic(config.get("neo4jUsername"), config.get("neo4jPassword")))
+const instance = require("../startup/neo4jdb")
 
 before((done) => {
+    // Connect mongoose to mongodb
     const dbUrl = config.get("dbUrl")
     mongoose.connect(dbUrl, { useNewUrlParser: true })
         .then(() => {
             console.log(`Connected to ${dbUrl}..`)
             done()
         })
+        .catch(() => {
+            throw new Error("Cant connect to mongodb")
+        })
 })
 
 beforeEach((done) => {
+    // Drop all database content
     const { users } = mongoose.connection.collections
     users.drop()
-        .then(() => {
-            let session = driver.session()
-            session.run(
-                'MATCH (p:Person)' +
-                'DELETE p'
-            ).then(() => {
-                done()
-            }).catch(() => {
-                done()
-            })
-        })
-        .catch(() => {
-            let session = driver.session()
-            session.run(
-                'MATCH (p:Person)' +
-                'DELETE p'
-            ).then(() => {
-                done()
-            }).catch(() => {
-                done()
-            })
-        })
+        .then(() => done())
+        .catch(() => done())
 })
-
-module.exports.instance = driver

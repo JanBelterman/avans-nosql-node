@@ -1,5 +1,5 @@
 const { User, validate, validatePwChange } = require("../models/user")
-const { neo4j } = require("../startup/db")
+const instance = require("../startup/neo4jdb")
 
 module.exports = {
 
@@ -17,7 +17,7 @@ module.exports = {
         })
         await user.save()
         // Save to neo4j
-        let session = neo4j.session()
+        let session = instance.session()
         await session.run(
             'CREATE (p:Person {username: $username, password: $password}) RETURN p',
             { username: req.body.username, password: req.body.password }
@@ -40,7 +40,7 @@ module.exports = {
         user.password = req.body.newPassword
         user.save()
         // Update user to neo4j
-        let session = neo4j.session()
+        let session = instance.session()
         await session.run(
             'MATCH (p {username: $username})' +
             'SET p.password = $password',
@@ -62,7 +62,7 @@ module.exports = {
         // Delete user from mongodb
         user.remove()
         // Delete user form neo4j
-        let session = neo4j.session()
+        let session = instance.session()
         await session.run(
             'MATCH (p {username: $username})' +
             'DELETE p',
