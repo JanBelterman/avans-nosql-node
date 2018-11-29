@@ -10,12 +10,12 @@ module.exports = {
         if(error) return res.status(400).send(error.details[0].message)
 
         // Check if optional comment exists
-        let parentPromise
-        if(req.params.commentId) {
-            parentPromise = Comment.findOne({ _id: req.params.commentId})
-        } else {
-            console.log("No commentId provided.");            
-        }
+        // let parentPromise
+        // if(req.params.commentId) {
+        //     parentPromise = Comment.findOne({ _id: req.params.commentId})
+        // } else {
+        //     console.log("No commentId provided.");            
+        // }
 
         // Check if user exists
         let user
@@ -32,37 +32,43 @@ module.exports = {
         })
 
         // Save on parent comment or thread
-        parentPromise.then((parentComment) => {
-            if(parentComment) {
-                //Save in parent comment and respond
-                parentComment.comments.push(comment._id)
-                
-                comment.save()
-                    .then(() => {
-                        parentComment.save()
-                            .then(() => {
-                                return res.send(comment)
-                            })
-                    })
-                
-            } else {
-                //Save in parent thread and respond
-                Thread.findOne({ _id: req.threadId})
-                    .then((result) => {
-                        const thread = result
-    
-                        thread.comments.push(comment._id)
-    
-                        thread.save()
-                            .then(() => {
-                                comment.save()
-                                    .then(() => {
-                                        return res.send(comment)
-                                    })
-                            })
-                    })
-            } 
-        })
+        if(req.params.commentId) {
+            Comment.findOne({ _id: req.params.commentId}).then((parentComment) => {
+                if(parentComment) {
+                    //Save in parent comment and respond
+                    parentComment.comments.push(comment._id)
+                    
+                    comment.save()
+                        .then(() => {
+                            parentComment.save()
+                                .then(() => {
+                                    return res.send(comment)
+                                })
+                        })
+                    
+                } else {
+                    //Save in parent thread and respond
+                    
+                } 
+            })
+        } else {
+            console.log("No parent commentId provided")
+            Thread.findOne({ _id: req.threadId})
+                .then((result) => {
+                    const thread = result
+
+                    thread.comments.push(comment._id)
+
+                    thread.save()
+                        .then(() => {
+                            comment.save()
+                                .then(() => {
+                                    return res.send(comment)
+                                })
+                        })
+                })
+        }
+        
                
     },
 
