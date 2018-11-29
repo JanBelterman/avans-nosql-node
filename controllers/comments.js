@@ -10,15 +10,20 @@ module.exports = {
         if(error) return res.status(400).send(error.details[0].message)
 
         // Check if optional comment exists
-        let parentComment
-        if(req.params.cid) {
-            parentComment = Comment.findOne({ _id: req.params.cid})
-            if(!parentComment) return res.status(404).send('Parent comment not found')
+        let parentPromise
+        if(req.params.commentId) {
+            parentPromise = Comment.findOne({ _id: req.params.commentId})
+        } else {
+            console.log("No commentId provided.");            
         }
 
         // Check if user exists
-        let user = User.findOne({ username: req.body.username })
-        if(!user) return res.status(404).send('User not registered')
+        let user
+        User.findOne({ username: req.body.username })
+            .then((result) => {
+                user = result
+                if(!user) return res.status(404).send('User not registered')
+            })
         
         // Create new Comment
         comment = new Comment({
@@ -27,40 +32,38 @@ module.exports = {
         })
 
         // Save on parent comment or thread
-        if(parentComment) {
-            //Save in parent comment and respond
-            parentComment.comments.push(comment._id)
-            
-            comment.save()
-                .then(() => {
-                    parentComment.save()
-                        .then(() => {
-                            return res.send(comment)
-                        })
-                })
-            
-        } else {
-            //Save in parent thread and respond
-            let thread
-            console.log(req.threadId)
-            Thread.findOne({ _id: req.threadId})
-                .then((result) => {
-                    thread = result
-                })
-
-            console.log(thread);
-            
-            
-            thread.comments.push(comment._id)
-
-            thread.save()
-                .then(() => {
-                    comment.save()
-                        .then(() => {
-                            return res.send(comment)
-                        })
-                })
-        }        
+        parentPromise.then((parentComment) => {
+            if(parentComment) {
+                //Save in parent comment and respond
+                parentComment.comments.push(comment._id)
+                
+                comment.save()
+                    .then(() => {
+                        parentComment.save()
+                            .then(() => {
+                                return res.send(comment)
+                            })
+                    })
+                
+            } else {
+                //Save in parent thread and respond
+                Thread.findOne({ _id: req.threadId})
+                    .then((result) => {
+                        const thread = result
+    
+                        thread.comments.push(comment._id)
+    
+                        thread.save()
+                            .then(() => {
+                                comment.save()
+                                    .then(() => {
+                                        return res.send(comment)
+                                    })
+                            })
+                    })
+            } 
+        })
+               
     },
 
     delete(req, res) {

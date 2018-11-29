@@ -30,6 +30,11 @@ commentSchema.virtual('downvotesCount').get(function () {
     return this.downvotes.length
 })
 
+commentSchema.pre('remove', function(next) {
+    const Comment = mongoose.model('comment');
+    
+})
+
 // Mongoose model
 const Comment = mongoose.model('comment', commentSchema)
 
