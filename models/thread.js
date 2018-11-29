@@ -35,6 +35,8 @@ threadSchema.virtual('downvotesCount').get(function () {
     return this.downvotes.length
 })
 
+// TODO: pre delete also delete all comments
+
 threadSchema.set("toObject", { virtuals: true })
 threadSchema.set('toJSON', { virtuals: true })
 

@@ -28,7 +28,6 @@ describe('/api/friendships', () => {
                     session.run(
                         'MATCH (p1:Person{username: "testUserFriendShips1"})-[:friendsWith]-(p2:Person) RETURN p2'
                     ).then((result) => {
-                        console.log(result)
                         assert(response.status, 200)
                         done()
                     })
