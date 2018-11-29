@@ -30,5 +30,15 @@ function validateThread(thread) {
     return Joi.validate(thread, schema)
 }
 
+// Request body validator
+function validateUpdate(thread) {
+    const schema = {
+        threadId: Joi.objectId().required(),
+        content: Joi.string().required()
+    }
+    return Joi.validate(thread, schema)
+}
+
 module.exports.Thread = Thread
 module.exports.validate = validateThread
+module.exports.validateUpdate = validateUpdate
