@@ -2,7 +2,7 @@ const threadsController = require("../controllers/threads")
 const express = require("express")
 const validateId = require("../middleware/validateId")
 
-const router = express.Router()
+const router = express.Router({mergeParams: true})
 
 router.post("/", threadsController.create)
 router.put("/:id", validateId, threadsController.update)
