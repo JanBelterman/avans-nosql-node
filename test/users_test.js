@@ -82,4 +82,38 @@ describe('/api/users', () => {
 
     })
 
+    describe("PUT", () => {
+
+        it('should respond with 200 on a valid request', (done) => {
+            request(app)
+                .put('/api/users')
+                .send({
+                    username: "testUser",
+                    oldPassword: "12345",
+                    newPassword: "123456"
+                })
+                .end((err, response) => {
+                    assert(response.status, 200)
+                    done()
+                })
+        })
+
+    })
+
+    describe("DELETE", () => {
+
+        it('should respond with 200 on a valid request', (done) => {
+            request(app)
+                .delete('/api/users')
+                .send({
+                    username: "testUser"
+                })
+                .end((err, response) => {
+                    assert(response.status, 200)
+                    done()
+                })
+        })
+
+    })
+
 })

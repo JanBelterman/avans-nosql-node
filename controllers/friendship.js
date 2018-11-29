@@ -4,7 +4,7 @@ const instance = require("../startup/neo4jdb")
 
 module.exports = {
 
-    async befriendUsers(req, res, next) {
+    async befriendUsers(req, res) {
         // Request body correct?
         const { error } = validateBefriend(req.body)
         if (error) return res.status(400).send(error.details[0].message)
@@ -20,6 +20,10 @@ module.exports = {
             'MERGE (p1)-[:friendsWith]->(p2)',
             { usernameOne: req.body.usernameOne, usernameTwo: req.body.usernameTwo }
         )
+        const result = await session.run(
+            'MATCH (p1:Person{username: "testUserFriendShips1"})-[:friendsWith]-(p2:Person) RETURN p2'
+        )
+        console.log("HIERRRRR: \n" + result)
         // Response
         res.send("Friendship created")
     },

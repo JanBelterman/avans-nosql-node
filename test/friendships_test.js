@@ -8,7 +8,7 @@ describe('/api/friendships', () => {
     before((done) => {
         let session = instance.session()
         session.run(
-            'CREATE (:Person {username: "testUser"}), (:Person {username:"testUser2"})'
+            'CREATE (:Person {username: "testUserFriendShips1"}), (:Person {username:"testUserFriendShips2"})'
         ).then(() => {
             done()
         })
@@ -20,12 +20,18 @@ describe('/api/friendships', () => {
             request(app)
                 .post('/api/friendships')
                 .send({
-                    usernameOne: "testUser1",
-                    passwordTwo: "testUser2"
+                    usernameOne: "testUserFriendShips1",
+                    passwordTwo: "testUserFriendShips2"
                 })
-                .end((err, response) => {
-                    assert(response.status, 200)
-                    done()
+                .end(function(err, response) {
+                    let session = instance.session()
+                    session.run(
+                        'MATCH (p1:Person{username: "testUserFriendShips1"})-[:friendsWith]-(p2:Person) RETURN p2'
+                    ).then((result) => {
+                        console.log(result)
+                        assert(response.status, 200)
+                        done()
+                    })
                 })
         })
 
@@ -37,8 +43,8 @@ describe('/api/friendships', () => {
             request(app)
                 .delete('/api/friendships')
                 .send({
-                    usernameOne: "testUser1",
-                    passwordTwo: "testUser2"
+                    usernameOne: "testUserFriendShips1",
+                    passwordTwo: "testUserFriendShips2"
                 })
                 .end((err, response) => {
                     assert(response.status, 200)
