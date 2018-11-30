@@ -17,7 +17,7 @@ before((done) => {
 
 // Clear all databases before each test
 // So each test can assume to have an emtpy dataset
-beforeEach(async (done) => {
+beforeEach(async () => {
     const { users } = mongoose.connection.collections
     try {
         await users.drop()
@@ -26,5 +26,4 @@ beforeEach(async (done) => {
         let session = instance.session()
         await session.run('MATCH (n) DETACH DELETE n')
     } catch(err) { }
-    done()
 })

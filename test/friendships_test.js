@@ -6,14 +6,13 @@ const { User } = require("../models/user")
 
 describe('/api/friendships', () => {
 
-    beforeEach(async (done) => {
+    beforeEach(async () => {
         let session = instance.session()
         await session.run('CREATE (:Person{username: "testUser1"}), (:Person{username:"testUser2"})')
         const userOne = new User({ username: "testUser1", password: "12345" })
         const userTwo = new User({ username: "testUser2", password: "12345" })
         await userOne.save()
         await userTwo.save()
-        done()
     })
 
     describe('POST', () => {
