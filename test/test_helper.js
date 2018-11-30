@@ -11,19 +11,20 @@ before((done) => {
             done()
         })
         .catch(() => {
-            throw new Error("Cant connect to mongodb")
+            console.log(`Can't connect to ${dbUrl}..`)
+            process.exit(1)
         })
 })
 
 // Clear all databases before each test
 // So each test can assume to have an emtpy dataset
-beforeEach(async () => {
+beforeEach((done) => {
     const { users } = mongoose.connection.collections
-    try {
-        await users.drop()
-    } catch (err) { }
-    try {
-        let session = instance.session()
-        await session.run('MATCH (n) DETACH DELETE n')
-    } catch(err) { }
+    users.drop()
+        .then(() => {
+            let session = instance.session()
+            return session.run('MATCH (n) DETACH DELETE n')
+        })
+        .catch(() => { })
+        .then(() => done())
 })
