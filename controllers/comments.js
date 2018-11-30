@@ -68,12 +68,13 @@ module.exports = {
     },
 
     delete(req, res) {
-        Comment.findByIdAndDelete(req.params.commentId)
-            .then((result) => {
-                res.send(result)
+        Comment.findById(req.params.commentId).then((result) => {
+            result.delete().then(() => {
+                return res.send(result)
             })
             .catch(() => {
-                res.status(404).send("Comment not found.")
+                return res.status(404).send("Comment not found")
             })
+        })
     }
 }
