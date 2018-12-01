@@ -9,5 +9,7 @@ router.put("/:id", validateId, threadsController.update)
 router.delete("/:id", validateId, threadsController.delete)
 router.get("/", threadsController.getAll)
 router.get("/:id", validateId, threadsController.getOne)
+router.post("/:id/upvotes", validateId, threadsController.upvote)
+router.post("/:id/downvotes", validateId, threadsController.downvote)
 
 module.exports = router

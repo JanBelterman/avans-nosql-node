@@ -49,7 +49,7 @@ threadSchema.pre('remove', function(next) {
 // Mongoose model
 const Thread = mongoose.model('thread', threadSchema)
 
-// Request body validator
+// Request body validators
 function validateThread(thread) {
     const schema = {
         username: Joi.string().required(),
@@ -59,7 +59,6 @@ function validateThread(thread) {
     return Joi.validate(thread, schema)
 }
 
-// Request body validator
 function validateUpdate(thread) {
     const schema = {
         content: Joi.string().required()
@@ -67,6 +66,14 @@ function validateUpdate(thread) {
     return Joi.validate(thread, schema)
 }
 
+function validateUpOrDownVote(thread) {
+    const schema = {
+        username: Joi.string().required()
+    }
+    return Joi.validate(thread, schema)
+}
+
 module.exports.Thread = Thread
 module.exports.validate = validateThread
 module.exports.validateUpdate = validateUpdate
+module.exports.validateUpOrDownVote = validateUpOrDownVote

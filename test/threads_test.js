@@ -11,7 +11,7 @@ describe('/api/threads', () => {
 
     // Add test user (required to create thread)
     beforeEach((done) => {
-        const user = new User({ username: "testUser1", password: "12345" })
+        const user = new User({ username: "testUser", password: "12345" })
         user.save().then(() => {
             userId = user._id
             done()
@@ -39,7 +39,7 @@ describe('/api/threads', () => {
             request(app)
                 .post('/api/threads')
                 .send({
-                    username: "testUser1",
+                    username: "testUser",
                     title: "testTitle",
                     content: "testContent"
                 })
@@ -200,6 +200,34 @@ describe('/api/threads', () => {
                 .get(`/api/threads/${threadId}`)
                 .end((err, response) => {
                     assert.equal(response.status, 200)
+                    done()
+                })
+        })
+
+    })
+
+    describe('POST UPVOTE', () => {
+
+        it('should respond 200 with valid request', (done) => {
+            request(app)
+                .post(`/api/threads/${threadId}/upvotes`)
+                .send({ username: "testUser" })
+                .end((err, res) => {
+                    assert.equal(res.status, 200)
+                    done()
+                })
+        })
+
+    })
+
+    describe('POST DOWNVOTE', () => {
+
+        it('should respond 200 with valid request', (done) => {
+            request(app)
+                .post(`/api/threads/${threadId}/downvotes`)
+                .send({ username: "testUser" })
+                .end((err, res) => {
+                    assert.equal(res.status, 200)
                     done()
                 })
         })

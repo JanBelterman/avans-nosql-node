@@ -63,9 +63,43 @@ module.exports = {
         }
         // Response
         res.send(thread)
+    },
+
+    async upvote(req, res) {
+        // Get thread
+        const thread = await Thread.findOne({ _id: req.params.id })
+        if (!thread) return res.status(404).send("No thread with this id")
+        // User exists?
+        const user = await User.findOne({ username: req.body.username })
+        if (!user) return res.status(404).send("No user found")
+        // User already upvoted?
+        if (thread.upvotes.indexOf(req.body.username) !== -1) return res.status(200).send("Already upvoted")
+        // Update thread
+        thread.upvotes.push(req.body.username) // add upvote
+        const index = thread.downvotes.indexOf(req.body.username)
+        if (index !== -1) thread.downvotes.splice(index, 1) // remove optional downvote
+        await thread.save()
+        // Response
+        res.send(`Upvoted for user: ` + req.body.username)
+    },
+
+    async downvote(req, res) {
+        // Get thread
+        const thread = await Thread.findOne({ _id: req.params.id })
+        if (!thread) return res.status(404).send("No thread with this id")
+        // User exists?
+        const user = await User.findOne({ username: req.body.username })
+        if (!user) return res.status(404).send("No user found")
+        // User already downvoted?
+        if (thread.downvotes.indexOf(req.body.username) !== -1) return res.status(200).send("Already downvoted")
+        // Update thread
+        thread.downvotes.push(req.body.username) // add downvote
+        const index = thread.upvotes.indexOf(req.body.username)
+        if (index !== -1) thread.upvotes.splice(index, 1) // remove optional upvote
+        await thread.save()
+        // Response
+        res.send(`Downvoted for user: ` + req.body.username)
     }
-
-
 
 }
 
