@@ -19,11 +19,15 @@ before((done) => {
 // Clear all databases before each test
 // So each test can assume to have an emtpy dataset
 beforeEach((done) => {
-    const { users } = mongoose.connection.collections
+    const { users, threads } = mongoose.connection.collections
     users.drop()
         .then(() => {
             let session = instance.session()
             return session.run('MATCH (n) DETACH DELETE n')
+        })
+        .catch(() => { })
+        .then(() => {
+            return threads.drop()
         })
         .catch(() => { })
         .then(() => done())

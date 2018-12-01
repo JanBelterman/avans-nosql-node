@@ -35,10 +35,16 @@ threadSchema.virtual('downvotesCount').get(function () {
     return this.downvotes.length
 })
 
-// TODO: pre delete also delete all comments
-
 threadSchema.set("toObject", { virtuals: true })
 threadSchema.set('toJSON', { virtuals: true })
+
+threadSchema.pre('remove', function(next) {
+    const Comment = mongoose.model('comment')
+    Comment.deleteMany({ _id: { $in: this.comments } })
+        .then(() => {
+            next()
+        })
+})
 
 // Mongoose model
 const Thread = mongoose.model('thread', threadSchema)

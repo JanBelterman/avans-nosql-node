@@ -4,7 +4,7 @@ const { Comment } = require("../models/comment")
 
 module.exports = {
 
-    async create(req, res, next) {
+    async create(req, res) {
         // Request body correct?
         const { error } = validate(req.body)
         if (error) return res.status(400).send(error.details[0].message)
@@ -22,53 +22,45 @@ module.exports = {
         res.send(thread)
     },
 
-    async update(req, res, next) {
+    async update(req, res) {
         // Request body?
         const { error } = validateUpdate(req.body)
         if (error) return res.status(400).send(error.details[0].message)
         // Update thread
         const thread = await Thread.findById(req.params.id)
+        if (!thread) return res.status(404).send("Cannot edit: thread not found")
         thread.content = req.body.content
         thread.save()
         // Response
         res.send(thread)
     },
 
-    async delete(req, res, next) {
-        const thread = await Thread.findByIdAndDelete(req.params.id)
+    async delete(req, res) {
+        const thread = await Thread.findById(req.params.id)
         if (!thread) return res.status(404).send("Thread doesn't exist")
-        res.send(thread)
+        thread.remove()
+            .then(() => {
+                res.send(thread)
+            })
     },
 
-    async getAll(req, res, next) {
+    async getAll(req, res) {
         // Get threads
         const threads = await Thread.find({}, { _id: 1, username: 1, title: 1, content: 1, upvotesCount: 1, downvotesCount: 1 })
         // Response
         res.send(threads)
     },
 
-    async getOne(req, res, next) {
+    async getOne(req, res) {
         // Get thread
-        const thread = await Thread.findOne({ _id: req.params.id }, { upvotes: 0, downvotes: 0 })//.populate([
-        //     {
-        //         path: "comments",
-        //         model: "comment",
-        //         populate: {
-        //             path: "comments",
-        //             model: "comment"
-        //         }
-        //     }
-        // ])
-        // Populate all comments & comments of comments
+        const thread = await Thread.findOne({ _id: req.params.id }, { upvotes: 0, downvotes: 0 })
         if (!thread) return res.status(404).send("No thread with this id")
+        // Add comments
         let i = 0;
         for (let item of thread.comments) {
             thread.comments[i] = await loadComments(item)
             i++
         }
-        console.log(JSON.stringify(thread.comments))
-        // Thread exists?
-        if (!thread) res.status(404).send("Thread doesn't exist")
         // Response
         res.send(thread)
     }
@@ -79,7 +71,7 @@ module.exports = {
 
 // Load comments recursively
 loadComments = function (parent) {
-    return new Promise(async(resolve) => {
+    return new Promise(async (resolve) => {
         parent = await Comment.findById(parent)
         if (parent.comments && parent.comments.length >= 1) {
             let i = 0
