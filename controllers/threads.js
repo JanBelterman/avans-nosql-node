@@ -45,8 +45,25 @@ module.exports = {
     },
 
     async getAll(req, res) {
+        // Get sort query
+        const sortOn = req.query.sort
         // Get threads
-        const threads = await Thread.find({}, { _id: 1, username: 1, title: 1, content: 1, upvotesCount: 1, downvotesCount: 1 })
+        let threads
+        switch(sortOn) {
+            case "upvotes":
+                threads = await Thread.aggregate([
+                    { $project: {
+                            username: 1,
+                            title: 1,
+                            content: 1,
+                            upvotes: { $size: "$upvotes" },
+                            downvotes: { $size: "$downvotes" }
+                    }},
+                    { $sort: {"upvotes":-1} }
+                ])
+                break
+            default: threads = await Thread.find({}, { _id: 1, username: 1, title: 1, content: 1, upvotesCount: 1, downvotesCount: 1 })
+        }
         // Response
         res.send(threads)
     },
