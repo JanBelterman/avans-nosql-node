@@ -4,7 +4,7 @@ const validateId = require('../middleware/validateId')
 
 const router = express.Router()
 
-router.post('/:commentId?', commentsController.create)
-router.delete('/:commentId', commentsController.delete)
+router.post('/:id/upvotes', validateId, commentsController.upvote)
+router.post('/:id/downvotes', validateId, commentsController.downvote)
 
 module.exports = router

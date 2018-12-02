@@ -4,6 +4,7 @@ const users = require("../routes/users")
 const friendships = require("../routes/friendships")
 const threads = require("../routes/threads")
 const comments = require("../routes/comments")
+const additionalCommentRoutes = require("../routes/additComments")
 
 module.exports = function(app) {
     app.use(express.json())
@@ -15,4 +16,5 @@ module.exports = function(app) {
         req.threadId = req.params.threadId
         next();
     }, comments)
+    app.use('/api/comments/', additionalCommentRoutes)
 }

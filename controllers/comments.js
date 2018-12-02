@@ -76,5 +76,42 @@ module.exports = {
                 return res.status(404).send("Comment not found")
             })
         })
+    },
+
+    async upvote(req, res) {
+        // Get comment
+        const comment = await Comment.findOne({ _id: req.params.id })
+        if (!comment) return res.status(404).send("No comment with this id")
+        // User exists?
+        const user = await User.findOne({ username: req.body.username })
+        if (!user) return res.status(404).send("No user found")
+        // User already upvoted?
+        if (comment.upvotes.indexOf(req.body.username) !== -1) return res.status(400).send("Already upvoted")
+        // Update comment
+        comment.upvotes.push(req.body.username) // add upvote
+        const index = comment.downvotes.indexOf(req.body.username)
+        if (index !== -1) comment.downvotes.splice(index, 1) // remove optional downvote
+        await comment.save()
+        // Response
+        res.send(`Upvoted for user: ` + req.body.username)
+    },
+
+    async downvote(req, res) {
+        // Get comment
+        const comment = await Comment.findOne({ _id: req.params.id })
+        if (!comment) return res.status(404).send("No comment with this id")
+        // User exists?
+        const user = await User.findOne({ username: req.body.username })
+        if (!user) return res.status(404).send("No user found")
+        // User already dowvoted?
+        if (comment.downvotes.indexOf(req.body.username) !== -1) return res.status(400).send("Already downvoted")
+        // Update comment
+        comment.downvotes.push(req.body.username) // add downvote
+        const index = comment.upvotes.indexOf(req.body.username)
+        if (index !== -1) comment.upvotes.splice(index, 1) // remove optional upvote
+        await comment.save()
+        // Response
+        res.send(`Downvoted for user: ` + req.body.username)
     }
+
 }
