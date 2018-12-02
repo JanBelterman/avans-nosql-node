@@ -1,6 +1,7 @@
 const { Thread, validate, validateUpdate } = require("../models/thread")
 const { User } = require("../models/user")
 const { Comment } = require("../models/comment")
+const instance = require("../startup/neo4jdb")
 
 module.exports = {
 
@@ -133,6 +134,28 @@ module.exports = {
         await thread.save()
         // Response
         res.send(`Downvoted for user: ` + req.body.username)
+    },
+
+    async getFeed(req, res) {
+        // Check username
+        const user = await User.findOne({username: req.params.username})
+        if (!user) return res.status(404).send("User not found")
+        // Check depth
+        const depth = req.query.depth
+        if (!depth) return res.status(400).send("Define depth")
+        // Get list of users to query for
+        let session = instance.session()
+        const result = await session.run(
+            `MATCH (p1:Person {username: $username})-[:friendsWith*1..${depth}]-(p2) RETURN p2`,
+            { username: req.params.username, depth: depth }
+        )
+        const usernames = []
+        for(let user of result.records) {
+            usernames.push(user._fields[0].properties.username)
+        }
+        // Get threads of these users
+        const threads = await Thread.find({ username: { $in: usernames }})
+        res.send(threads)
     }
 
 }

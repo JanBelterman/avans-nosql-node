@@ -4,6 +4,7 @@ const app = require("../app")
 const { User } = require("../models/user")
 const { Thread } = require("../models/thread")
 const { Comment } = require("../models/comment")
+const instance = require("../startup/neo4jdb")
 
 describe('/api/threads', () => {
 
@@ -11,11 +12,15 @@ describe('/api/threads', () => {
 
     // Add test user (required to create thread)
     beforeEach((done) => {
-        const user = new User({ username: "testUser", password: "12345" })
-        user.save().then(() => {
-            userId = user._id
-            done()
-        })
+        let session = instance.session()
+        session.run('CREATE (:Person{username: "testUser"})')
+            .then(() => {
+                const user = new User({ username: "testUser", password: "12345" })
+                user.save().then(() => {
+                    userId = user._id
+                    done()
+                })
+            })
     })
 
     // Create test thread with comment
@@ -226,6 +231,20 @@ describe('/api/threads', () => {
             request(app)
                 .post(`/api/threads/${threadId}/downvotes`)
                 .send({ username: "testUser" })
+                .end((err, res) => {
+                    assert.equal(res.status, 200)
+                    done()
+                })
+        })
+
+    })
+
+    describe('GET FEED', () => {
+
+        it('should respond 200 with valid request', (done) => {
+            request(app)
+                .get('/api/threads/byusername/testUser')
+                .query({ depth: 2 })
                 .end((err, res) => {
                     assert.equal(res.status, 200)
                     done()

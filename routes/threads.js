@@ -11,5 +11,6 @@ router.get("/", threadsController.getAll)
 router.get("/:id", validateId, threadsController.getOne)
 router.post("/:id/upvotes", validateId, threadsController.upvote)
 router.post("/:id/downvotes", validateId, threadsController.downvote)
+router.get("/byusername/:username", threadsController.getFeed)
 
 module.exports = router
