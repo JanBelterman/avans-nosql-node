@@ -49,17 +49,34 @@ module.exports = {
         const sortOn = req.query.sort
         // Get threads
         let threads
-        switch(sortOn) {
+        switch (sortOn) {
             case "upvotes":
                 threads = await Thread.aggregate([
-                    { $project: {
+                    {
+                        $project: {
                             username: 1,
                             title: 1,
                             content: 1,
                             upvotes: { $size: "$upvotes" },
                             downvotes: { $size: "$downvotes" }
-                    }},
-                    { $sort: {"upvotes":-1} }
+                        }
+                    },
+                    { $sort: { "upvotes": -1 } }
+                ])
+                break
+            case "rate":
+                threads = await Thread.aggregate([
+                    {
+                        $project: {
+                            username: 1,
+                            title: 1,
+                            content: 1,
+                            upvotes: { $size: "$upvotes" },
+                            downvotes: { $size: "$downvotes" },
+                            rate: { $subtract: [{$size: "$upvotes"}, {$size: "$downvotes"}] }
+                        }
+                    },
+                    { $sort: { "rate": -1 } }
                 ])
                 break
             default: threads = await Thread.find({}, { _id: 1, username: 1, title: 1, content: 1, upvotesCount: 1, downvotesCount: 1 })
