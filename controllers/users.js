@@ -58,7 +58,7 @@ module.exports = {
         let user = await User.findOne({ username: req.body.username })
         if (!user) return res.status(404).send("User not registered")
         // Password correct?
-        if (user.password !== req.body.password) return res.status(401).send("Old password is incorrect")
+        if (user.password !== req.body.password) return res.status(401).send("Password is incorrect")
         // Delete user from mongodb
         user.remove()
         // Delete user form neo4j

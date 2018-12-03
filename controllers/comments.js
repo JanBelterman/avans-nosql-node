@@ -25,6 +25,8 @@ module.exports = {
                 if(!user) return res.status(404).send('User not registered')
             })
         
+        // TODO: bug when user is not registered comment is still created
+
         // Create new Comment
         comment = new Comment({
             username: req.body.username,
