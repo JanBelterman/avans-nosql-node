@@ -1,6 +1,7 @@
 const mongoose = require("mongoose")
 const Joi = require("joi")
 require('./comment')
+const newComment = require('./newComment');
 
 const Schema = mongoose.Schema
 
@@ -22,6 +23,7 @@ const threadSchema = new mongoose.Schema({
         type: Schema.Types.ObjectId,
         ref: 'comment'
     }],
+    newcomments: [newComment],
     upvotes: [String],
     downvotes: [String]
 })

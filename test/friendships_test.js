@@ -7,13 +7,25 @@ const { User } = require("../models/user")
 describe('/api/friendships', () => {
 
     // Create 2 test users in both mongodb & neo4j
-    beforeEach(async () => {
+    beforeEach((done) => {
+        // let session = instance.session()
+        // await session.run('CREATE (:Person{username: "testUser1"}), (:Person{username:"testUser2"})')
+        // const userOne = new User({ username: "testUser1", password: "12345" })
+        // const userTwo = new User({ username: "testUser2", password: "12345" })
+        // await userOne.save()
+        // await userTwo.save()
+
         let session = instance.session()
-        await session.run('CREATE (:Person{username: "testUser1"}), (:Person{username:"testUser2"})')
-        const userOne = new User({ username: "testUser1", password: "12345" })
-        const userTwo = new User({ username: "testUser2", password: "12345" })
-        await userOne.save()
-        await userTwo.save()
+        session.run('CREATE (:Person{username: "testUser1"}), (:Person{username:"testUser2"})').then(() => {
+            const userOne = new User({ username: "testUser1", password: "12345" })
+            const userTwo = new User({ username: "testUser2", password: "12345" })
+            userOne.save().then(() => {
+                userTwo.save().then(() => {
+
+                    done();
+                })
+            })
+        })
     })
 
     describe('POST', () => {
@@ -49,16 +61,40 @@ describe('/api/friendships', () => {
                 })
         })
 
+        it('should respond 200 with double friend requests', (done) => {
+            request(app)
+                .post('/api/friendships')
+                .send({
+                    usernameOne: "testUser1",
+                    usernameTwo: "testUser2"
+                })
+                .end(() => {
+                    request(app)
+                        .post('/api/friendships')
+                        .send({
+                            usernameOne: "testUser1",
+                            usernameTwo: "testUser2"
+                        })
+                        .end((err, res) => {
+                            assert(res.status === 200);
+                            done();
+                        })
+                })
+        })
+
     })
 
     describe('DELETE', () => {
 
         // Create friendship in neo4j
-        beforeEach(async() => {
+        beforeEach((done) => {
             let session = instance.session()
-            await session.run(
+            session.run(
                 'MATCH (p1:Person{username: "testUser1"}), (p2:Person{username:"testUser2"})' +
                 'MERGE (p1)-[:friendsWith]->(p2)')
+                .then(() => {
+                    done();
+                })
         })
 
         it('should respond 200 with a valid request', (done) => {
@@ -87,6 +123,27 @@ describe('/api/friendships', () => {
                         .then((result) => {
                             assert(result.records[0] === undefined)
                             done()
+                        })
+                })
+        })
+
+        it('should respond with status code 200 when deleting a non-existing friendship', (done) => {
+            request(app)
+                .delete('/api/friendships')
+                .send({
+                    usernameOne: "testUser1",
+                    usernameTwo: "testUser2"
+                })
+                .end(() => {
+                    request(app)
+                        .delete('/api/friendships')
+                        .send({
+                            usernameOne: "testUser1",
+                            usernameTwo: "testUser2"
+                        })
+                        .end((err, res) => {
+                            assert(res.status === 200);
+                            done();
                         })
                 })
         })

@@ -54,6 +54,24 @@ describe('/api/threads', () => {
                 })
         })
 
+        it('should have created a thread in the database with a valid request', (done) => {
+            Thread.countDocuments().then(count => {
+                request(app)
+                    .post('/api/threads')
+                    .send({
+                        username: "testUser",
+                        title: "testTitle",
+                        content: "testContent"
+                    })
+                    .end(() => {
+                        Thread.countDocuments().then(newCount => {
+                            assert(count === newCount - 1);
+                            done();
+                        })
+                    })
+            })
+        })
+
         it('should respond 400 when request body misses a property', (done) => {
             request(app)
                 .post('/api/threads')
@@ -98,6 +116,20 @@ describe('/api/threads', () => {
                 .end((err, response) => {
                     assert.equal(response.status, 200)
                     done()
+                })
+        })
+
+        it('should have changed content in database on valid request', (done) => {
+            request(app)
+                .put(`/api/threads/${threadId}`)
+                .send({
+                    content: "newTestContent"
+                })
+                .end(() => {
+                    Thread.findById(threadId).then((result) => {
+                        assert(result.content === "newTestContent");
+                        done();
+                    })
                 })
         })
 
@@ -198,7 +230,7 @@ describe('/api/threads', () => {
 
     })
 
-    describe('GET ALL', () => {
+    describe('GET BY ID', () => {
 
         it('should respond 200 on a valid request', (done) => {
             request(app)
@@ -223,6 +255,45 @@ describe('/api/threads', () => {
                 })
         })
 
+        it('should have added upvote to thread', (done) => {
+            Thread.findById(threadId, (err, res) => {
+                const count = res.upvotes.length;
+                request(app)
+                    .post(`/api/threads/${threadId}/upvotes`)
+                    .send({ username: "testUser" })
+                    .end(() => {
+                        Thread.findById(threadId, (err, res) => {
+                            assert.equal(res.upvotes.length, count + 1);
+                            done();
+                        })
+                    })
+            })
+        })
+
+        it('should remove existing downvote when upvoting', (done) => {
+            //Start with downvote
+            request(app)
+                .post(`/api/threads/${threadId}/downvotes`)
+                .send({ username: "testUser" })
+                .end(() => {
+                    //Switch to upvote
+                    Thread.findById(threadId, (err, res) => {
+                        const countUpvotes = res.upvotes.length;
+                        const countDownvotes = res.downvotes.length;
+                        request(app)
+                            .post(`/api/threads/${threadId}/upvotes`)
+                            .send({ username: "testUser" })
+                            .end(() => {
+                                Thread.findById(threadId, (err, res) => {
+                                    assert.equal(res.upvotes.length, countUpvotes + 1);
+                                    assert.equal(res.downvotes.length, countDownvotes -1);
+                                    done();
+                                })
+                            })
+                    })
+                })
+        })
+
     })
 
     describe('POST DOWNVOTE', () => {
@@ -234,6 +305,45 @@ describe('/api/threads', () => {
                 .end((err, res) => {
                     assert.equal(res.status, 200)
                     done()
+                })
+        })
+
+        it('should have added downvote to thread', (done) => {
+            Thread.findById(threadId, (err, res) => {
+                const count = res.downvotes.length;
+                request(app)
+                    .post(`/api/threads/${threadId}/downvotes`)
+                    .send({ username: "testUser" })
+                    .end(() => {
+                        Thread.findById(threadId, (err, res) => {
+                            assert.equal(res.downvotes.length, count + 1);
+                            done();
+                        })
+                    })
+            })
+        })
+
+        it('should remove existing upvote when downvoting', (done) => {
+            //Start with upvote
+            request(app)
+                .post(`/api/threads/${threadId}/upvotes`)
+                .send({ username: "testUser" })
+                .end(() => {
+                    //Switch to downvote
+                    Thread.findById(threadId, (err, res) => {
+                        const countUpvotes = res.upvotes.length;
+                        const countDownvotes = res.downvotes.length;
+                        request(app)
+                            .post(`/api/threads/${threadId}/downvotes`)
+                            .send({ username: "testUser" })
+                            .end(() => {
+                                Thread.findById(threadId, (err, res) => {
+                                    assert.equal(res.upvotes.length, countUpvotes - 1);
+                                    assert.equal(res.downvotes.length, countDownvotes + 1);
+                                    done();
+                                })
+                            })
+                    })
                 })
         })
 

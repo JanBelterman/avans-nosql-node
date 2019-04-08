@@ -154,18 +154,111 @@ describe('/api/users', () => {
                 })
         })
 
+        it('should not edit the password with incorrect oldPassword', (done) => {
+            request(app)
+                .post('/api/users')
+                .send({
+                    username: "testUser",
+                    password: "12345"
+                })
+                .end(() => {
+                    request(app)
+                    .put('/api/users')
+                    .send({
+                        username: "testUser",
+                        oldPassword: "wrongpassword",
+                        newPassword: "123"
+                    })                    
+                    .end(() => {
+                        User.find({username: "testUser"}, (err, response) => {
+                            assert(response[0].password === "12345")
+                            done()
+                        })
+                    })
+
+                })
+        })
+
+        it('should respond with error code 400 when using an incorrect oldPassword', (done) => {
+            request(app)
+                .post('/api/users')
+                .send({
+                    username: "testUser",
+                    password: "12345"
+                })
+                .end(() => {
+                    request(app)
+                    .put('/api/users')
+                    .send({
+                        username: "testUser",
+                        oldPassword: "wrongpassword",
+                        newPassword: "123"
+                    })                    
+                    .end((err, res) => {
+                        assert(res.status >= 400)
+                        done()
+                    })
+
+                })
+        })
+
     })
 
     describe("DELETE", () => {
+
+        //Setup deletable account
+        beforeEach((done) => {
+            request(app)
+                .post('/api/users')
+                .send({
+                    username: "testUser",
+                    password: "12345"
+                })
+                .end(() => {
+                    done()
+                })
+        })
 
         it('should respond with 200 on a valid request', (done) => {
             request(app)
                 .delete('/api/users')
                 .send({
-                    username: "testUser"
+                    username: "testUser",
+                    password: "12345"
                 })
                 .end((err, response) => {
                     assert(response.status, 200)
+                    done()
+                })
+        })
+
+        it('should not delete a user if an incorrect pasword was given', (done) => {
+            User.countDocuments().then(count => {
+                request(app)
+                    .delete('/api/users')
+                    .send({
+                        username: "testUser",
+                        password: "wrongpassword"
+                    })
+                    .end(() => {
+                        User.countDocuments().then(newCount => {
+                            assert(count === newCount)
+                            done()
+                        })
+                    })
+
+            })
+        })
+
+        it('should respond with error code 401 if an incorrect pasword was given', (done) => {
+            request(app)
+                .delete('/api/users')
+                .send({
+                    username: "testUser",
+                    password: "wrongpassword"
+                })
+                .end((err, res) => {
+                    assert(res.status === 401);
                     done()
                 })
         })

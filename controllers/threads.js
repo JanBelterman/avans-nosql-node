@@ -88,7 +88,7 @@ module.exports = {
 
     async getOne(req, res) {
         // Get thread
-        const thread = await Thread.findOne({ _id: req.params.id }, { upvotes: 0, downvotes: 0 })
+        const thread = await Thread.findOne({ _id: req.params.id })
         if (!thread) return res.status(404).send("No thread with this id")
         // Add comments
         let i = 0;
