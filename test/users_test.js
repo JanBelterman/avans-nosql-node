@@ -80,6 +80,62 @@ describe('/api/users', () => {
                 })
         })
 
+        it('should not create a new user with an existing username', (done) => {
+            //Create existing user
+            request(app)
+                .post('/api/users')
+                .send({
+                    username: "testUser",
+                    password: "12345"
+                })
+                .end(() => {
+                    User.countDocuments().then(count => {
+                        request(app)
+                            .post('/api/users')
+                            .send({
+                                //Try to add same username
+                                username: "testUser",
+                                password: "12345"
+                            })
+                            .end(() => {
+                                User.countDocuments().then(newCount => {
+                                    assert(count === newCount)
+                                    done()
+                                })
+                            })
+                    })
+                    
+                })
+            
+        })
+
+        it('should respond with a status code in the 400 range when trying to use an existing username', (done) => {
+            //Create existing user
+            request(app)
+                .post('/api/users')
+                .send({
+                    username: "testUser",
+                    password: "12345"
+                })
+                .end(() => {
+                    User.countDocuments().then(count => {
+                        request(app)
+                            .post('/api/users')
+                            .send({
+                                //Try to add same username
+                                username: "testUser",
+                                password: "12345"
+                            })
+                            .end((err, response) => {
+                                assert(response.status >= 400);
+                                done();
+                            })
+                    })
+                    
+                })
+            
+        })
+
     })
 
     describe("PUT", () => {
